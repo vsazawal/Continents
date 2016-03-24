@@ -1,0 +1,38 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:baselineAligned="false"
+    android:divider="?android:attr/dividerHorizontal"
+    android:orientation="horizontal"
+    android:showDividers="middle"
+    tools:context="edu.umd.cs.continents.ContinentListActivity">
+
+    <!--
+    This layout is a two-pane layout for the Continents
+    master/detail flow.
+    
+    -->
+
+    <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/continent_list"
+        android:name="edu.umd.cs.continents.ContinentListFragment"
+        android:layout_width="@dimen/item_width"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        app:layoutManager="LinearLayoutManager"
+        tools:context="edu.umd.cs.continents.ContinentListActivity"
+        tools:listitem="@layout/continent_list_content" />
+
+    <FrameLayout
+        android:id="@+id/continent_detail_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="3" />
+
+</LinearLayout>
