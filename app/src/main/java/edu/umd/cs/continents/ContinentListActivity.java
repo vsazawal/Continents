@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,7 @@ public class ContinentListActivity extends AppCompatActivity {
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(new ContinentNameList()));
+        //linear layout manager already set in layout XML
     }
 
     public class SimpleItemRecyclerViewAdapter
@@ -66,22 +68,29 @@ public class ContinentListActivity extends AppCompatActivity {
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.continent_list_content, parent, false);
-            return new ViewHolder(view);
+            ViewHolderListener listener = new ViewHolderListener();
+            return new ViewHolder(view, listener);
         }
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mItem = mValues.get(position);
-            holder.mNameView.setText(mValues.get(position).getName());
 
-            holder.mView.setOnClickListener(new View.OnClickListener() {
+            Log.d("RECYCLERVIEW ADAPTER", "in onBindViewHolder");
+            final ContinentName item = mValues.get(position);
+            holder.getNameView().setText(mValues.get(position).getName());
+
+            holder.tellListenerAboutBoundItem(item);
+
+
+
+/*            holder.getNameView().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mTwoPane) {
                         Bundle arguments = new Bundle();
 
-                        arguments.putInt(ContinentDetailFragment.ARG_ITEM_ID, holder.mItem.getId());
-                        arguments.putString(ContinentDetailFragment.ARG_ITEM_NAME, holder.mItem.getName());
+                        arguments.putInt(ContinentDetailFragment.ARG_ITEM_ID, item.getId());
+                        arguments.putString(ContinentDetailFragment.ARG_ITEM_NAME, item.getName());
                         ContinentDetailFragment fragment = new ContinentDetailFragment();
                         fragment.setArguments(arguments);
                         getSupportFragmentManager().beginTransaction()
@@ -90,12 +99,12 @@ public class ContinentListActivity extends AppCompatActivity {
                     } else {
                         Context context = v.getContext();
                         Intent intent = new Intent(context, ContinentDetailActivity.class);
-                        intent.putExtra(ContinentDetailFragment.ARG_ITEM_ID, holder.mItem.getId());
-                        intent.putExtra(ContinentDetailFragment.ARG_ITEM_NAME, holder.mItem.getName());
+                        intent.putExtra(ContinentDetailFragment.ARG_ITEM_ID, item.getId());
+                        intent.putExtra(ContinentDetailFragment.ARG_ITEM_NAME, item.getName());
                         context.startActivity(intent);
                     }
                 }
-            });
+            }); */
         }
 
         @Override
@@ -104,14 +113,23 @@ public class ContinentListActivity extends AppCompatActivity {
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
-            public final View mView;
-            public final TextView mNameView;
-            public ContinentName mItem;
 
-            public ViewHolder(View view) {
-                super(view);
-                mView = view;
-                mNameView = (TextView) view.findViewById(R.id.continent_name);
+            private final TextView mNameView;
+            private ViewHolderListener mListener;
+
+            public ViewHolder(View itemView, ViewHolderListener listener) {
+                super(itemView);
+                mListener = listener;
+                mNameView = (TextView) itemView.findViewById(R.id.continent_name);
+                mNameView.setOnClickListener(mListener);
+            }
+
+            public TextView getNameView() {
+                return mNameView;
+            }
+
+            public void tellListenerAboutBoundItem(ContinentName item) {
+                mListener.setItem(item);
             }
 
             @Override
@@ -119,5 +137,47 @@ public class ContinentListActivity extends AppCompatActivity {
                 return super.toString() + " '" + mNameView.getText() + "'";
             }
         }
+
+        public class ViewHolderListener implements View.OnClickListener {
+
+            ContinentName mItem;
+            ViewHolderListener() {
+                mItem = null;
+            }
+
+            public void setItem(ContinentName item) {
+                mItem = item;
+            }
+
+            public void onClick(View v) {
+
+                if (mItem == null) {
+                    return;
+                }
+
+
+                if (mTwoPane) {
+                    Bundle arguments = new Bundle();
+
+                    arguments.putInt(ContinentDetailFragment.ARG_ITEM_ID, mItem.getId());
+                    arguments.putString(ContinentDetailFragment.ARG_ITEM_NAME, mItem.getName());
+                    ContinentDetailFragment fragment = new ContinentDetailFragment();
+                    fragment.setArguments(arguments);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.continent_detail_container, fragment)
+                            .commit();
+                } else {
+                    Context context = v.getContext();
+                    Intent intent = new Intent(context, ContinentDetailActivity.class);
+                    intent.putExtra(ContinentDetailFragment.ARG_ITEM_ID, mItem.getId());
+                    intent.putExtra(ContinentDetailFragment.ARG_ITEM_NAME, mItem.getName());
+                    context.startActivity(intent);
+                }
+            }
+
+
+
+        }
+
     }
 }
